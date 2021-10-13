@@ -1,0 +1,12 @@
+{
+    "name": "svykanban",
+    "displayName": "Kanban",
+    "packageType": "Web-Component",
+    "icon": "https://raw.githubusercontent.com/Servoy/svykanban/master/icon.png",
+    "description": "Kanban board for NG Client, based on jkanban library",
+    "wikiUrl": "https://github.com/Servoy/svykanban/wiki",
+    "sourceUrl": "https://github.com/Servoy/svykanban",
+    "releases": [
+    	{"version": "1.0.0","url": "https://github.com/Servoy/svykanban/releases/download/v1.0.0/svykanban.zip","servoy-version":"2021.6"}
+    ]
+}
