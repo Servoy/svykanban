@@ -8,21 +8,21 @@
 	[
 		{
 			"name": "kbjs",
-			"version": "1",
+			"version": "1.0.0",
 			"url": "svykanban/board/jkanban.js",
 			"mimetype": "text/javascript"
 		},
 
 		{
 			"name": "kbcss",
-			"version": "1",
+			"version": "1.0.0",
 			"url": "svykanban/board/jkanban.css",
 			"mimetype": "text/css"
 		},
 		
 		{
 			"name": "bcss",
-			"version": "1",
+			"version": "1.0.0",
 			"url": "svykanban/board/board.css",
 			"mimetype": "text/css"
 		}
