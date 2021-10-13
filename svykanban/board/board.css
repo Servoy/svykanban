@@ -1,0 +1,56 @@
+.kanban-container {
+	height: 100%;
+	overflow: hidden;
+}
+
+.kanban-board {
+	height: 100%;
+}
+	
+.kanban-board .kanban-drag {
+	max-height: 66vh;
+	overflow: auto;
+}
+
+@media only screen and (max-width: 600px) {
+	.kanban-board {
+		width: 98% !important;
+		margin-bottom: 15px;
+	}
+}
+
+@media only screen and (min-height: 550px) {
+	.kanban-board .kanban-drag {
+		max-height: 71vh;
+	}
+}
+
+@media only screen and (min-height: 650px) {
+	.kanban-board .kanban-drag {
+		max-height: 75vh;
+	}
+}
+
+@media only screen and (min-height: 750px) {
+	.kanban-board .kanban-drag {
+		max-height: 78vh;
+	}
+}
+
+@media only screen and (min-height: 850px) {
+	.kanban-board .kanban-drag {
+		max-height: 80vh;
+	}
+}
+
+@media only screen and (min-height: 900px) {
+	.kanban-board .kanban-drag {
+		max-height: 81vh;
+	}
+}
+
+@media only screen and (min-height: 950px) {
+	.kanban-board .kanban-drag {
+		max-height: 81vh;
+	}
+}
