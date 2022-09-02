@@ -8,14 +8,14 @@
 	[
 		{
 			"name": "kbjs",
-			"version": "1.0.0",
+			"version": "master",
 			"url": "svykanban/board/jkanban.js",
 			"mimetype": "text/javascript"
 		},
 
 		{
 			"name": "kbcss",
-			"version": "1.0.0",
+			"version": "master",
 			"url": "svykanban/board/jkanban.css",
 			"mimetype": "text/css"
 		},
@@ -34,9 +34,10 @@
 		"widthBoard" 		   : {"type": "string"},
 		"responsivePercentage" : {"type": "boolean","default": false},
 		"boards" 		       : {"type": "boardItem[]", "pushToServer": "shallow"},
+		"dragItems"            : {"type": "boolean"},
 		"dragBoards"           : {"type": "boolean"},
-		"addItemButton"        : {"type": "boolean","default": false},
-		"buttonContent" 	   : {"type": "string"}	
+		"itemAddOptions"       : {"type": "itemAddOptions"},
+		"itemHandleOptions"    : {"type": "itemHandleOptions"}
 	},
 	
 	"handlers": 
@@ -126,7 +127,11 @@
 			    "type": "string"},
 			    { 
 				"name": "element",
-			    "type": "object"}]
+			    "type": "object"},
+			    { 
+				"name": "position",
+			    "type": "int",
+			    "optional": true}]
 		},
 		"updateElement": {
 			"parameters": [{ 
@@ -163,7 +168,21 @@
 		"item": {
 			"id"								: {"type": "string"},
 			"title"								: {"type": "string"},
-			"priority"							: {"type": "string"}
+			"priority"							: {"type": "string"},
+			"class"	 							: {"type": "styleclass"}
+		},
+		"itemAddOptions": {
+			"enabled"							: {"type": "boolean", "default": false},
+			"content"							: {"type": "string", "default" : "+"},
+			"class"								: {"type": "string"},
+			"footer"							: {"type": "boolean"}
+		},
+		"itemHandleOptions": {
+			"enabled"							: {"type": "boolean", "default": false},
+			"handleClass"						: {"type": "string"},
+			"customCssHandler"					: {"type": "string"},
+			"customCssIconHandler"				: {"type": "string"},
+			"customHandler"						: {"type": "string"}
 		}
 	}
 }

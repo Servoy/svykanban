@@ -3,6 +3,7 @@
 	<name>svykanbanExample</name>
 	<comment></comment>
 	<projects>
+		<project>resources</project>
 		<project>svykanban</project>
 	</projects>
 	<buildSpec>

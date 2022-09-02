@@ -3,8 +3,30 @@ useCssPosition:true",
 encapsulation:108,
 items:[
 {
+cssPosition:"20,130,-1,-1,100,30",
+json:{
+cssPosition:{
+bottom:"-1",
+height:"30",
+left:"-1",
+right:"130",
+top:"20",
+width:"100"
+},
+onActionMethodID:"93247835-1507-49AE-A023-10F526FFA4A8",
+text:"Add Item"
+},
+name:"btnAddItem",
+typeName:"bootstrapcomponents-button",
+typeid:47,
+uuid:"3622E002-28E2-4FE2-81DE-BB4400A3B978"
+},
+{
 cssPosition:"60,20,10,20,200,100",
 json:{
+addItemButton:true,
+buttonClick:"AE7F774A-3E83-4022-A602-5E9CD89BE7C2",
+buttonContent:"<i class=\"fas fa-plus\"><\/i>",
 click:"B1F761D9-BF72-4BC4-AE48-226C7185FB1A",
 cssPosition:{
 bottom:"10",
@@ -14,7 +36,12 @@ right:"20",
 top:"60",
 width:"200"
 },
+dragItems:true,
 dropEl:"7A893FFC-9085-48BD-AE20-5B2218AF34E5",
+itemAddOptions:{
+enabled:true,
+svyUUID:"DC30FB9D-492A-44A3-ABDC-26D491FBF508"
+},
 responsivePercentage:true
 },
 name:"board",

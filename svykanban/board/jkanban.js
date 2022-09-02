@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 /**
  * jKanban
  * Vanilla Javascript plugin for manage kanban boards
@@ -11,388 +11,602 @@
 var dragula = require('dragula');
 
 (function () {
+  this.jKanban = function () {
+    var self = this
+    var __DEFAULT_ITEM_HANDLE_OPTIONS = {
+      enabled: false
+    }
+    var __DEFAULT_ITEM_ADD_OPTIONS = {
+      enabled: false
+    }
+    this._disallowedItemProperties = [
+      'id',
+      'title',
+      'click',
+      'context',
+      'drag',
+      'dragend',
+      'drop',
+      'order'
+    ]
+    this.element = ''
+    this.container = ''
+    this.boardContainer = []
+    this.handlers = []
+    this.dragula = dragula
+    this.drake = ''
+    this.drakeBoard = ''
+    this.itemAddOptions = __DEFAULT_ITEM_ADD_OPTIONS
+    this.itemHandleOptions = __DEFAULT_ITEM_HANDLE_OPTIONS
+    var defaults = {
+      element: '',
+      gutter: '15px',
+      widthBoard: '250px',
+      responsive: '700',
+      responsivePercentage: false,
+      boards: [],
+      dragBoards: true,
+      dragItems: true, //whether can drag cards or not, useful when set permissions on it.
+      itemAddOptions: __DEFAULT_ITEM_ADD_OPTIONS,
+      itemHandleOptions: __DEFAULT_ITEM_HANDLE_OPTIONS,
+      dragEl: function (el, source) {},
+      dragendEl: function (el) {},
+      dropEl: function (el, target, source, sibling) {},
+      dragBoard: function (el, source) {},
+      dragendBoard: function (el) {},
+      dropBoard: function (el, target, source, sibling) {},
+      click: function (el) {},
+      context: function (el, e) {},
+      buttonClick: function (el, boardId) {},
+      propagationHandlers: [],
+    }
 
-    this.jKanban = function () {
-        var self = this;
-        this._disallowedItemProperties = ['id', 'title', 'click', 'drag', 'dragend', 'drop', 'order'];
-        this.element = '';
-        this.container = '';
-        this.boardContainer = [];
-        this.dragula = dragula;
-        this.drake = '';
-        this.drakeBoard = '';
-        this.addItemButton = false;
-        this.buttonContent = '+';
-        defaults = {
-            element: '',
-            gutter: '15px',
-            widthBoard: '250px',
-            responsive: '700',
-            responsivePercentage: false,
-            boards: [],
-            dragBoards: true,
-            addItemButton: false,
-            buttonContent: '+',
-            dragEl: function (el, source) {
+    if (arguments[0] && typeof arguments[0] === 'object') {
+      this.options = __extendDefaults(defaults, arguments[0])
+    }
+
+    this.__getCanMove = function (handle) {
+      if (!self.options.itemHandleOptions.enabled) {
+        return !!self.options.dragItems
+      }
+
+      if (self.options.itemHandleOptions.handleClass) {
+        return handle.classList.contains(self.options.itemHandleOptions.handleClass)
+      }
+
+      return handle.classList.contains('item_handle')
+    }
+
+    this.init = function () {
+      //set initial boards
+      __setBoard()
+      //set drag with dragula
+      if (window.innerWidth > self.options.responsive) {
+        //Init Drag Board
+        self.drakeBoard = self
+          .dragula([self.container], {
+            moves: function (el, source, handle, sibling) {
+              if (!self.options.dragBoards) return false
+              return (
+                handle.classList.contains('kanban-board-header') ||
+                handle.classList.contains('kanban-title-board')
+              )
             },
-            dragendEl: function (el) {
+            accepts: function (el, target, source, sibling) {
+              return target.classList.contains('kanban-container')
             },
-            dropEl: function (el, target, source, sibling) {
+            revertOnSpill: true,
+            direction: 'horizontal'
+          })
+          .on('drag', function (el, source) {
+            el.classList.add('is-moving')
+            self.options.dragBoard(el, source)
+            if (typeof el.dragfn === 'function') el.dragfn(el, source)
+          })
+          .on('dragend', function (el) {
+            __updateBoardsOrder()
+            el.classList.remove('is-moving')
+            self.options.dragendBoard(el)
+            if (typeof el.dragendfn === 'function') el.dragendfn(el)
+          })
+          .on('drop', function (el, target, source, sibling) {
+            el.classList.remove('is-moving')
+            self.options.dropBoard(el, target, source, sibling)
+            if (typeof el.dropfn === 'function')
+              el.dropfn(el, target, source, sibling)
+          })
+
+        //Init Drag Item
+        self.drake = self
+          .dragula(self.boardContainer, {
+            moves: function (el, source, handle, sibling) {
+              return self.__getCanMove(handle)
             },
-            dragBoard: function (el, source) {
-            },
-            dragendBoard: function (el) {
-            },
-            dropBoard: function (el, target, source, sibling) {
-            },
-            click: function (el,event) {
-            },
-            buttonClick: function (el, boardId,event) {
+            revertOnSpill: true
+          })
+          .on('cancel', function (el, container, source) {
+            self.enableAllBoards()
+          })
+          .on('drag', function (el, source) {
+            var elClass = el.getAttribute('class')
+            if (elClass !== '' && elClass.indexOf('not-draggable') > -1) {
+              self.drake.cancel(true)
+              return
             }
-        };
 
-        if (arguments[0] && typeof arguments[0] === "object") {
-            this.options = __extendDefaults(defaults, arguments[0]);
-        }
+            el.classList.add('is-moving')
 
-        this.init = function () {
-            //set initial boards
-            __setBoard();
-            //set drag with dragula
-            if (window.innerWidth > self.options.responsive) {
+            self.options.dragEl(el, source)
 
-                //Init Drag Board
-                self.drakeBoard = self.dragula([self.container], {
-                    moves: function (el, source, handle, sibling) {
-                        if (!self.options.dragBoards) return false;
-                        return (handle.classList.contains('kanban-board-header') || handle.classList.contains('kanban-title-board'));
-                    },
-                    accepts: function (el, target, source, sibling) {
-                        return target.classList.contains('kanban-container');
-                    },
-                    revertOnSpill: true,
-                    direction: 'horizontal',
-                })
-                    .on('drag', function (el, source) {
-                        el.classList.add('is-moving');
-                        self.options.dragBoard(el, source);
-                        if (typeof(el.dragfn) === 'function')
-                            el.dragfn(el, source);
-                    })
-                    .on('dragend', function (el) {
-                        __updateBoardsOrder();
-                        el.classList.remove('is-moving');
-                        self.options.dragendBoard(el);
-                        if (typeof(el.dragendfn) === 'function')
-                            el.dragendfn(el);
-                    })
-                    .on('drop', function (el, target, source, sibling) {
-                        el.classList.remove('is-moving');
-                        self.options.dropBoard(el, target, source, sibling);
-                        if (typeof(el.dropfn) === 'function')
-                            el.dropfn(el, target, source, sibling);
-                    });
-
-                //Init Drag Item
-                self.drake = self.dragula(self.boardContainer, function () {
-                    revertOnSpill: true
-                })
-                    .on('cancel', function(el, container, source) {
-                        self.enableAllBoards();
-                    })
-                    .on('drag', function (el, source) {
-                        var elClass = el.getAttribute("class");
-                        if (elClass !== "" && elClass.indexOf("not-draggable") > -1) {
-                            self.drake.cancel(true);
-                            return;
-                        }
-
-                        el.classList.add('is-moving');
-                        var boardJSON = __findBoardJSON(source.parentNode.dataset.id);
-                        if (boardJSON.dragTo !== undefined) {
-                            self.options.boards.map(function (board) {
-                                if (boardJSON.dragTo.indexOf(board.id) === -1 && board.id !== source.parentNode.dataset.id) {
-                                    self.findBoard(board.id).classList.add('disabled-board');
-                                }
-                            })
-                        }
-
-                        self.options.dragEl(el, source);
-                        if (el !== null && typeof(el.dragfn) === 'function')
-                            el.dragfn(el, source);
-                    })
-                    .on('dragend', function (el) {
-                        self.options.dragendEl(el);
-                        if (el !== null && typeof(el.dragendfn) === 'function')
-                            el.dragendfn(el);
-                    })
-                    .on('drop', function (el, target, source, sibling) {
-                        self.enableAllBoards();
-
-                        var boardJSON = __findBoardJSON(source.parentNode.dataset.id);
-                        if (boardJSON.dragTo !== undefined) {
-                            if (boardJSON.dragTo.indexOf(target.parentNode.dataset.id) === -1 && target.parentNode.dataset.id !== source.parentNode.dataset.id) {
-                                self.drake.cancel(true)
-                            }
-                        }
-                        if (el !== null) {
-                            self.options.dropEl(el, target, source, sibling);
-                            el.classList.remove('is-moving');
-                            if (typeof(el.dropfn) === 'function')
-                                el.dropfn(el, target, source, sibling);
-                        }
-                    })
+            var boardJSON = __findBoardJSON(source.parentNode.dataset.id)
+            if (boardJSON.dragTo !== undefined) {
+              self.options.boards.map(function (board) {
+                if (
+                  boardJSON.dragTo.indexOf(board.id) === -1 &&
+                  board.id !== source.parentNode.dataset.id
+                ) {
+                  self.findBoard(board.id).classList.add('disabled-board')
+                }
+              })
             }
-        };
 
-        this.enableAllBoards = function() {
-            var allB = document.querySelectorAll('.kanban-board');
-            if (allB.length > 0 && allB !== undefined) {
-                for (var i = 0; i < allB.length; i++) {
-                    allB[i].classList.remove('disabled-board');
-                }
+            if (el !== null && typeof el.dragfn === 'function')
+              el.dragfn(el, source)
+          })
+          .on('dragend', function (el) {
+            self.options.dragendEl(el)
+            if (el !== null && typeof el.dragendfn === 'function')
+              el.dragendfn(el)
+          })
+          .on('drop', function (el, target, source, sibling) {
+            self.enableAllBoards()
+
+            var boardJSON = __findBoardJSON(source.parentNode.dataset.id)
+            if (boardJSON.dragTo !== undefined) {
+              if (
+                boardJSON.dragTo.indexOf(target.parentNode.dataset.id) === -1 &&
+                target.parentNode.dataset.id !== source.parentNode.dataset.id
+              ) {
+                self.drake.cancel(true)
+              }
             }
-        };
-
-        this.addElement = function (boardID, element) {
-            var board = self.element.querySelector('[data-id="' + boardID + '"] .kanban-drag');
-            var nodeItem = document.createElement('div');
-            nodeItem.classList.add('kanban-item');
-            if (element.id) {
-              nodeItem.setAttribute('data-eid', element.id)
-            }
-            nodeItem.innerHTML = element.title;
-            //add function
-            nodeItem.clickfn = element.click;
-            nodeItem.dragfn = element.drag;
-            nodeItem.dragendfn = element.dragend;
-            nodeItem.dropfn = element.drop;
-            __appendCustomProperties(nodeItem, element);
-            __onclickHandler(nodeItem);
-            board.appendChild(nodeItem);
-            return self;
-        };
-
-        this.addForm = function (boardID, formItem) {
-            var board = self.element.querySelector('[data-id="' + boardID + '"] .kanban-drag');
-            var _attribute = formItem.getAttribute("class");
-            formItem.setAttribute("class", _attribute + " not-draggable");
-            board.appendChild(formItem);
-            return self;
-        };
-
-        this.addBoards = function (boards) {
-            if (self.options.responsivePercentage) {
-                self.container.style.width = '100%';
-                self.options.gutter = '1%';
-                if (window.innerWidth > self.options.responsive) {
-                    var boardWidth = (100 - boards.length * 2) / boards.length;
-                } else {
-                    var boardWidth = 100 - (boards.length * 2);
-                }
-            } else {
-                var boardWidth = self.options.widthBoard;
-            }
-            var addButton = self.options.addItemButton;
-            var buttonContent = self.options.buttonContent;
-
-
-            //for on all the boards
-            for (var boardkey in boards) {
-                // single board
-                var board = boards[boardkey];
-                self.options.boards.push(board);
-
-                if (!self.options.responsivePercentage) {
-                    //add width to container
-                    if (self.container.style.width === '') {
-                        self.container.style.width = parseInt(boardWidth) + (parseInt(self.options.gutter) * 2) + 'px';
-                    } else {
-                        self.container.style.width = parseInt(self.container.style.width) + parseInt(boardWidth) + (parseInt(self.options.gutter) * 2) + 'px';
-                    }
-                }
-                //create node
-                var boardNode = document.createElement('div');
-                boardNode.dataset.id = board.id;
-                boardNode.dataset.order = self.container.childNodes.length + 1;
-                boardNode.classList.add('kanban-board');
-                //set style
-                if (self.options.responsivePercentage) {
-                    boardNode.style.width = boardWidth + '%';
-                } else {
-                    boardNode.style.width = boardWidth;
-                }
-                boardNode.style.marginLeft = self.options.gutter;
-                boardNode.style.marginRight = self.options.gutter;
-                // header board
-                var headerBoard = document.createElement('header');
-                if (board.class !== '' && board.class !== undefined)
-                    var allClasses = board.class.split(",");
-                else allClasses = [];
-                headerBoard.classList.add('kanban-board-header');
-                allClasses.map(function (value) {
-                    headerBoard.classList.add(value);
-                });
-                headerBoard.innerHTML = '<div class="kanban-title-board">' + board.title + '</div>';
-                // if add button is true, add button to the board
-                if (addButton) {
-                    var btn = document.createElement("BUTTON");
-//                    var t = document.createTextNode(buttonContent);
-                    btn.setAttribute("class", "kanban-title-button btn btn-default btn-xs");
-//                    btn.appendChild(t);
-                    //var buttonHtml = '<button class="kanban-title-button btn btn-default btn-xs">'+buttonContent+'</button>'
-                    btn.innerHTML = buttonContent;
-                    headerBoard.appendChild(btn);
-                    __onButtonClickHandler(btn, board.id);
-                }
-                //content board
-                var contentBoard = document.createElement('main');
-                contentBoard.classList.add('kanban-drag');
-                //add drag to array for dragula
-                self.boardContainer.push(contentBoard);
-                for (var itemkey in board.item) {
-                    //create item
-                    var itemKanban = board.item[itemkey];
-                    var nodeItem = document.createElement('div');
-                    nodeItem.classList.add('kanban-item');
-                    nodeItem.dataset.eid = itemKanban.id;
-                    nodeItem.innerHTML = itemKanban.title;
-                    //add function
-                    nodeItem.clickfn = itemKanban.click;
-                    nodeItem.dragfn = itemKanban.drag;
-                    nodeItem.dragendfn = itemKanban.dragend;
-                    nodeItem.dropfn = itemKanban.drop;
-                    __appendCustomProperties(nodeItem, itemKanban);
-                    //add click handler of item
-                    __onclickHandler(nodeItem);
-                    contentBoard.appendChild(nodeItem);
-                }
-                //footer board
-                var footerBoard = document.createElement('footer');
-                //board assembly
-                boardNode.appendChild(headerBoard);
-                boardNode.appendChild(contentBoard);
-                boardNode.appendChild(footerBoard);
-                //board add
-                self.container.appendChild(boardNode);
-            }
-            return self;
-        }
-
-        this.findBoard = function (id) {
-            var el = self.element.querySelector('[data-id="' + id + '"]');
-            return el;
-        }
-
-        this.findElement = function (id) {
-            var el = self.element.querySelector('[data-eid="' + id + '"]');
-            return el;
-        }
-
-        this.getBoardElements = function (id) {
-            var board = self.element.querySelector('[data-id="' + id + '"] .kanban-drag');
-            return (board.childNodes);
-        }
-
-        this.removeElement = function (el) {
-            if (typeof(el) === 'string')
-                el = self.element.querySelector('[data-eid="' + el + '"]');
             if (el !== null) {
-                el.remove();
+              var result = self.options.dropEl(el, target, source, sibling)
+              if (result === false) {
+                self.drake.cancel(true)
+              }
+              el.classList.remove('is-moving')
+              if (typeof el.dropfn === 'function')
+                el.dropfn(el, target, source, sibling)
             }
-            return self;
-        };
+          })
+      }
+    }
 
-        this.removeBoard = function (board) {
-            if (typeof(board) === 'string')
-                board = self.element.querySelector('[data-id="' + board + '"]');
-            if (board !== null) {
-                board.remove();
-            }
-            return self;
+    this.enableAllBoards = function () {
+      var allB = document.querySelectorAll('.kanban-board')
+      if (allB.length > 0 && allB !== undefined) {
+        for (var i = 0; i < allB.length; i++) {
+          allB[i].classList.remove('disabled-board')
+        }
+      }
+    }
+
+    this.addElement = function (boardID, element, position) {
+      if (typeof position === 'undefined') {
+        position = -1
+      }
+      var board = self.element.querySelector(
+        '[data-id="' + boardID + '"] .kanban-drag'
+      )
+      var refElement = board.childNodes[position]
+      var nodeItem = document.createElement('div')
+      nodeItem.classList.add('kanban-item')
+      if (typeof element.id !== 'undefined' && element.id !== '') {
+        nodeItem.setAttribute('data-eid', element.id)
+      }
+      if (element.class && Array.isArray(element.class)) {
+        element.class.forEach(function (cl) {
+          nodeItem.classList.add(cl)
+        })
+      }
+      nodeItem.innerHTML = __buildItemCard(element)
+      //add function
+      nodeItem.clickfn = element.click
+      nodeItem.contextfn = element.context;
+      nodeItem.dragfn = element.drag
+      nodeItem.dragendfn = element.dragend
+      nodeItem.dropfn = element.drop
+      __appendCustomProperties(nodeItem, element)
+      __onclickHandler(nodeItem)
+      __onContextHandler(nodeItem)
+      if (self.options.itemHandleOptions.enabled) {
+        nodeItem.style.cursor = 'default'
+      }
+      board.insertBefore(nodeItem, refElement)
+      return self
+    }
+
+    this.addForm = function (boardID, formItem) {
+      var board = self.element.querySelector(
+        '[data-id="' + boardID + '"] .kanban-drag'
+      )
+      var _attribute = formItem.getAttribute('class')
+      formItem.setAttribute('class', _attribute + ' not-draggable')
+      board.appendChild(formItem)
+      return self
+    }
+
+    this.addBoards = function (boards, isInit) {
+      if (self.options.responsivePercentage) {
+        self.container.style.width = '100%'
+        self.options.gutter = '1%'
+        if (window.innerWidth > self.options.responsive) {
+          var boardWidth = (100 - boards.length * 2) / boards.length
+        } else {
+          var boardWidth = 100 - boards.length * 2
+        }
+      } else {
+        var boardWidth = self.options.widthBoard
+      }
+      var addButton = self.options.itemAddOptions.enabled
+      var buttonContent = self.options.itemAddOptions.content
+      var buttonClass = self.options.itemAddOptions.class
+      var buttonFooter = self.options.itemAddOptions.footer
+
+      //for on all the boards
+      for (var boardkey in boards) {
+        // single board
+        var board = boards[boardkey]
+        if (!isInit) {
+          self.options.boards.push(board)
         }
 
-        // board button on click function
-        this.onButtonClick = function (el) {
-
+        if (!self.options.responsivePercentage) {
+          //add width to container
+          if (self.container.style.width === '') {
+            self.container.style.width =
+              parseInt(boardWidth) + parseInt(self.options.gutter) * 2 + 'px'
+          } else {
+            self.container.style.width =
+              parseInt(self.container.style.width) +
+              parseInt(boardWidth) +
+              parseInt(self.options.gutter) * 2 +
+              'px'
+          }
         }
-
-        //PRIVATE FUNCTION
-        function __extendDefaults(source, properties) {
-            var property;
-            for (property in properties) {
-                if (properties.hasOwnProperty(property)) {
-                    source[property] = properties[property];
-                }
-            }
-            return source;
+        //create node
+        var boardNode = document.createElement('div')
+        boardNode.dataset.id = board.id
+        boardNode.dataset.order = self.container.childNodes.length + 1
+        boardNode.classList.add('kanban-board')
+        //set style
+        if (self.options.responsivePercentage) {
+          boardNode.style.width = boardWidth + '%'
+        } else {
+          boardNode.style.width = boardWidth
         }
-
-        function __setBoard() {
-            self.element = document.querySelector(self.options.element);
-            self.container = self.element.querySelector('.kanban-container');
-            //create container
-            if (!self.container) {
-	            var boardContainer = document.createElement('div');
-	            boardContainer.classList.add('kanban-container');
-	            self.container = boardContainer;
-            }
-            //add boards
-            self.addBoards(self.options.boards);
-            //appends to container
-            self.element.appendChild(self.container);
-        };
-
-        function __onclickHandler(nodeItem, clickfn) {
-            nodeItem.addEventListener('click', function (e) {
-                e.preventDefault();
-                self.options.click(this,e);
-                if (typeof(this.clickfn) === 'function')
-                    this.clickfn(this,e);
-            });
-        }
-
-        function __onButtonClickHandler(nodeItem, boardId) {
-            nodeItem.addEventListener('click', function (e) {
-                e.preventDefault();
-                self.options.buttonClick(this, boardId, e);
-                // if(typeof(this.clickfn) === 'function')
-                //     this.clickfn(this);
-            });
-        }
-
-        function __findBoardJSON(id) {
-            var el = []
-            self.options.boards.map(function (board) {
-                if (board.id === id) {
-                    return el.push(board)
-                }
+        boardNode.style.marginLeft = self.options.gutter
+        boardNode.style.marginRight = self.options.gutter
+        // header board
+        var headerBoard = document.createElement('header')
+        if (board.class !== '' && board.class !== undefined)
+          var allClasses = board.class.split(',')
+        else allClasses = []
+        headerBoard.classList.add('kanban-board-header')
+        allClasses.map(function (value) {
+          // Remove empty spaces
+          value = value.replace(/^[ ]+/g, '')
+          headerBoard.classList.add(value)
+        })
+        headerBoard.innerHTML =
+          '<div class="kanban-title-board">' + board.title + '</div>'
+        //content board
+        var contentBoard = document.createElement('main')
+        contentBoard.classList.add('kanban-drag')
+        if (board.bodyClass !== '' && board.bodyClass !== undefined)
+          var bodyClasses = board.bodyClass.split(',')
+        else bodyClasses = []
+        bodyClasses.map(function (value) {
+          contentBoard.classList.add(value)
+        })
+        //add drag to array for dragula
+        self.boardContainer.push(contentBoard)
+        for (var itemkey in board.item) {
+          //create item
+          var itemKanban = board.item[itemkey]
+          var nodeItem = document.createElement('div')
+          nodeItem.classList.add('kanban-item')
+          if (itemKanban.id) {
+            nodeItem.dataset.eid = itemKanban.id
+          }
+          if (itemKanban.class && Array.isArray(itemKanban.class)) {
+            itemKanban.class.forEach(function (cl) {
+              nodeItem.classList.add(cl)
             })
-            return el[0]
+          }
+          nodeItem.innerHTML = __buildItemCard(itemKanban)
+          //add function
+          nodeItem.clickfn = itemKanban.click
+          nodeItem.contextfn = itemKanban.context
+          nodeItem.dragfn = itemKanban.drag
+          nodeItem.dragendfn = itemKanban.dragend
+          nodeItem.dropfn = itemKanban.drop
+          __appendCustomProperties(nodeItem, itemKanban)
+          //add click handler of item
+          __onclickHandler(nodeItem)
+          __onContextHandler(nodeItem)
+          if (self.options.itemHandleOptions.enabled) {
+            nodeItem.style.cursor = 'default'
+          }
+          contentBoard.appendChild(nodeItem)
+        }
+        //footer board
+        var footerBoard = document.createElement('footer')
+        // if add button is true, add button to the board
+        if (addButton) {
+          var btn = document.createElement('BUTTON')
+          var t = document.createTextNode(buttonContent ? buttonContent : '+')
+          btn.setAttribute(
+            'class',
+            buttonClass ? buttonClass : 'kanban-title-button btn btn-default btn-xs'
+          )
+          btn.appendChild(t)
+          //var buttonHtml = '<button class="kanban-title-button btn btn-default btn-xs">'+buttonContent+'</button>'
+          if (buttonFooter) {
+            footerBoard.appendChild(btn)
+          } else {
+            headerBoard.appendChild(btn)
+          }
+          __onButtonClickHandler(btn, board.id)
+        }
+        //board assembly
+        boardNode.appendChild(headerBoard)
+        boardNode.appendChild(contentBoard)
+        boardNode.appendChild(footerBoard)
+        //board add
+        self.container.appendChild(boardNode)
+      }
+      return self
+    }
+
+    this.findBoard = function (id) {
+      var el = self.element.querySelector('[data-id="' + id + '"]')
+      return el
+    }
+
+    this.getParentBoardID = function (el) {
+      if (typeof el === 'string') {
+        el = self.element.querySelector('[data-eid="' + el + '"]')
+      }
+      if (el === null) {
+        return null
+      }
+      return el.parentNode.parentNode.dataset.id
+    }
+
+    this.moveElement = function (targetBoardID, elementID, element) {
+      if (targetBoardID === this.getParentBoardID(elementID)) {
+        return
+      }
+
+      this.removeElement(elementID)
+      return this.addElement(targetBoardID, element)
+    }
+
+    this.replaceElement = function (el, element) {
+      var nodeItem = el
+      if (typeof nodeItem === 'string') {
+        nodeItem = self.element.querySelector('[data-eid="' + el + '"]')
+      }
+      nodeItem.innerHTML = __buildItemCard(element)
+      // add function
+      nodeItem.clickfn = element.click
+      nodeItem.contextfn = element.context
+      nodeItem.dragfn = element.drag
+      nodeItem.dragendfn = element.dragend
+      nodeItem.dropfn = element.drop
+      __appendCustomProperties(nodeItem, element)
+      __onclickHandler(nodeItem)
+      __onContextHandler(nodeItem)
+      return self
+    }
+
+    this.findElement = function (id) {
+      var el = self.element.querySelector('[data-eid="' + id + '"]')
+      return el
+    }
+
+    this.getBoardElements = function (id) {
+      var board = self.element.querySelector(
+        '[data-id="' + id + '"] .kanban-drag'
+      )
+      return board.childNodes
+    }
+
+    this.removeElement = function (el) {
+      if (typeof el === 'string')
+        el = self.element.querySelector('[data-eid="' + el + '"]')
+      if (el !== null) {
+        //fallback for IE
+        if (typeof el.remove == 'function') {
+          el.remove()
+        } else {
+          el.parentNode.removeChild(el)
+        }
+      }
+      return self
+    }
+
+    this.removeBoard = function (board) {
+      var boardElement = null
+      if (typeof board === 'string')
+        boardElement = self.element.querySelector('[data-id="' + board + '"]')
+      if (boardElement !== null) {
+        //fallback for IE
+        if (typeof boardElement.remove == 'function') {
+          boardElement.remove()
+        } else {
+          boardElement.parentNode.removeChild(boardElement)
+        }
+      }
+
+      // remove thboard in options.boards
+      for (var i = 0; i < self.options.boards.length; i++) {
+        if (self.options.boards[i].id === board) {
+          self.options.boards.splice(i, 1)
+          break
+        }
+      }
+
+      return self
+    }
+
+    // board button on click function
+    this.onButtonClick = function (el) {}
+
+    //PRIVATE FUNCTION
+    function __extendDefaults (source, properties) {
+      var property
+      for (property in properties) {
+        if (properties.hasOwnProperty(property)) {
+          source[property] = properties[property]
+        }
+      }
+      return source
+    }
+
+    function __setBoard () {
+      self.element = document.querySelector(self.options.element)
+      //create container
+      var boardContainer = document.createElement('div')
+      boardContainer.classList.add('kanban-container')
+      self.container = boardContainer
+      //add boards
+
+      if (document.querySelector(self.options.element).dataset.hasOwnProperty('board')) {
+        url = document.querySelector(self.options.element).dataset.board
+        window.fetch(url, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+          .then(function (response) {
+            // log response text
+            response.json().then(function (data) {
+              self.options.boards = data
+              self.addBoards(self.options.boards, true)
+            })
+
+          })
+          .catch(function (error) {
+            console.log('Error: ', error)
+          })
+      } else {
+        self.addBoards(self.options.boards, true)
+      }
+
+      //appends to container
+      self.element.appendChild(self.container)
+    }
+
+    function __onclickHandler (nodeItem, clickfn) {
+      nodeItem.addEventListener('click', function (e) {
+        if (!self.options.propagationHandlers.includes('click')) e.preventDefault()
+        self.options.click(this)
+        if (typeof this.clickfn === 'function') this.clickfn(this)
+      })
+    }
+
+    function __onContextHandler(nodeItem, contextfn) {
+      if (nodeItem.addEventListener) {
+          nodeItem.addEventListener('contextmenu', function (e) {
+            if (!self.options.propagationHandlers.includes('context')) e.preventDefault()
+            self.options.context(this, e)
+            if (typeof this.contextfn === 'function') this.contextfn(this, e)
+          }, false)
+      } else {
+        nodeItem.attachEvent('oncontextmenu', function () {
+          self.options.context(this)
+          if (typeof this.contextfn === 'function') this.contextfn(this)
+          if (!self.options.propagationHandlers.includes('context')) window.event.returnValue = false
+        })
+      }
+  }
+
+    function __onButtonClickHandler (nodeItem, boardId) {
+      nodeItem.addEventListener('click', function (e) {
+        e.preventDefault()
+        self.options.buttonClick(this, boardId)
+        // if(typeof(this.clickfn) === 'function')
+        //     this.clickfn(this);
+      })
+    }
+
+    function __findBoardJSON (id) {
+      var el = []
+      self.options.boards.map(function (board) {
+        if (board.id === id) {
+          return el.push(board)
+        }
+      })
+      return el[0]
+    }
+
+    function __appendCustomProperties (element, parentObject) {
+      for (var propertyName in parentObject) {
+        if (self._disallowedItemProperties.indexOf(propertyName) > -1) {
+          continue
         }
 
-        function __appendCustomProperties(element, parentObject) {
-            for (var propertyName in parentObject) {
-                if (self._disallowedItemProperties.indexOf(propertyName) > -1) {
-                    continue;
-                }
+        element.setAttribute(
+          'data-' + propertyName,
+          parentObject[propertyName]
+        )
+      }
+    }
 
-                element.setAttribute('data-' + propertyName, parentObject[propertyName]);
-            }
-        }
+    function __updateBoardsOrder () {
+      var index = 1
+      for (var i = 0; i < self.container.childNodes.length; i++) {
+        self.container.childNodes[i].dataset.order = index++
+      }
+    }
 
-        function __updateBoardsOrder() {
-            var index = 1;
-            for (var i = 0; i < self.container.childNodes.length; i++) {
-                self.container.childNodes[i].dataset.order = index++;
-            }
-        }
+    function __buildItemCard(item) {
+      var result = 'title' in item ? item.title : '';
 
-        //init plugin
-        this.init();
-    };
-}());
+      if (self.options.itemHandleOptions.enabled) {
+          if ((self.options.itemHandleOptions.customHandler || undefined) === undefined) {
+              var customCssHandler = self.options.itemHandleOptions.customCssHandler
+              var customCssIconHandler = self.options.itemHandleOptions.customCssIconHandler
+              var customItemLayout = self.options.itemHandleOptions.customItemLayout
+              if ((customCssHandler || undefined) === undefined) {
+                  customCssHandler = 'drag_handler';
+              }
 
+              if ((customCssIconHandler || undefined) === undefined) {
+                  customCssIconHandler = customCssHandler + '_icon';
+              }
+
+              if ((customItemLayout || undefined) === undefined) {
+                  customItemLayout = '';
+              }
+
+              result = '<div class=\'item_handle ' + customCssHandler + '\'><i class=\'item_handle ' + customCssIconHandler + '\'></i></div><div>' + result + '</div>'
+          } else {
+              result = '<div> ' + self.options.itemHandleOptions.customHandler.replace(/%([^%]+)%/g, function (match, key) 
+                      { return item[key] !== undefined ? item[key] : '' }) + ' </div>'
+              return result
+          }
+      }
+
+      return result
+  }
+
+    //init plugin
+    this.init()
+  }
+})()
 
 },{"dragula":9}],2:[function(require,module,exports){
 module.exports = function atoa (a, n) { return Array.prototype.slice.call(a, n); }
@@ -409,7 +623,7 @@ module.exports = function debounce (fn, args, ctx) {
   });
 };
 
-},{"ticky":10}],4:[function(require,module,exports){
+},{"ticky":11}],4:[function(require,module,exports){
 'use strict';
 
 var atoa = require('atoa');
@@ -466,7 +680,7 @@ module.exports = function emitter (thing, options) {
 };
 
 },{"./debounce":3,"atoa":2}],5:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 'use strict';
 
 var customEvent = require('custom-event');
@@ -569,9 +783,9 @@ function find (el, type, fn) {
   }
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./eventmap":6,"custom-event":7}],6:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 'use strict';
 
 var eventmap = [];
@@ -586,9 +800,9 @@ for (eventname in global) {
 
 module.exports = eventmap;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],7:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 
 var NativeCustomEvent = global.CustomEvent;
 
@@ -612,7 +826,7 @@ function useNative () {
 module.exports = useNative() ? NativeCustomEvent :
 
 // IE >= 9
-'function' === typeof document.createEvent ? function CustomEvent (type, params) {
+'undefined' !== typeof document && 'function' === typeof document.createEvent ? function CustomEvent (type, params) {
   var e = document.createEvent('CustomEvent');
   if (params) {
     e.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
@@ -638,7 +852,7 @@ function CustomEvent (type, params) {
   return e;
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],8:[function(require,module,exports){
 'use strict';
 
@@ -675,7 +889,7 @@ module.exports = {
 };
 
 },{}],9:[function(require,module,exports){
-(function (global){
+(function (global){(function (){
 'use strict';
 
 var emitter = require('contra/emitter');
@@ -801,13 +1015,16 @@ function dragula (initialContainers, options) {
       release({});
       return; // when text is selected on an input and then dragged, mouseup doesn't fire. this is our only hope
     }
-    // truthy check fixes #239, equality fixes #207
-    if (e.clientX !== void 0 && e.clientX === _moveX && e.clientY !== void 0 && e.clientY === _moveY) {
+
+    // truthy check fixes #239, equality fixes #207, fixes #501
+    if ((e.clientX !== void 0 && Math.abs(e.clientX - _moveX) <= (o.slideFactorX || 0)) &&
+      (e.clientY !== void 0 && Math.abs(e.clientY - _moveY) <= (o.slideFactorY || 0))) {
       return;
     }
+
     if (o.ignoreInputTextSelection) {
-      var clientX = getCoord('clientX', e);
-      var clientY = getCoord('clientY', e);
+      var clientX = getCoord('clientX', e) || 0;
+      var clientY = getCoord('clientY', e) || 0;
       var elementBehindCursor = doc.elementFromPoint(clientX, clientY);
       if (isInput(elementBehindCursor)) {
         return;
@@ -915,8 +1132,8 @@ function dragula (initialContainers, options) {
       return;
     }
     var item = _copy || _item;
-    var clientX = getCoord('clientX', e);
-    var clientY = getCoord('clientY', e);
+    var clientX = getCoord('clientX', e) || 0;
+    var clientY = getCoord('clientY', e) || 0;
     var elementBehindCursor = getElementBehindPoint(_mirror, clientX, clientY);
     var dropTarget = findDropTarget(elementBehindCursor, clientX, clientY);
     if (dropTarget && ((_copy && o.copySortSource) || (!_copy || dropTarget !== _source))) {
@@ -1038,8 +1255,8 @@ function dragula (initialContainers, options) {
     }
     e.preventDefault();
 
-    var clientX = getCoord('clientX', e);
-    var clientY = getCoord('clientY', e);
+    var clientX = getCoord('clientX', e) || 0;
+    var clientY = getCoord('clientY', e) || 0;
     var x = clientX - _offsetX;
     var y = clientY - _offsetY;
 
@@ -1225,12 +1442,12 @@ function getScroll (scrollProp, offsetProp) {
 }
 
 function getElementBehindPoint (point, x, y) {
-  var p = point || {};
-  var state = p.className;
+  point = point || {};
+  var state = point.className || '';
   var el;
-  p.className += ' gu-hide';
+  point.className += ' gu-hide';
   el = doc.elementFromPoint(x, y);
-  p.className = state;
+  point.className = state;
   return el;
 }
 
@@ -1285,8 +1502,195 @@ function getCoord (coord, e) {
 
 module.exports = dragula;
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./classes":8,"contra/emitter":4,"crossvent":5}],10:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],11:[function(require,module,exports){
+(function (setImmediate){(function (){
 var si = typeof setImmediate === 'function', tick;
 if (si) {
   tick = function (fn) { setImmediate(fn); };
@@ -1295,4 +1699,84 @@ if (si) {
 }
 
 module.exports = tick;
-},{}]},{},[1]);
+}).call(this)}).call(this,require("timers").setImmediate)
+},{"timers":12}],12:[function(require,module,exports){
+(function (setImmediate,clearImmediate){(function (){
+var nextTick = require('process/browser.js').nextTick;
+var apply = Function.prototype.apply;
+var slice = Array.prototype.slice;
+var immediateIds = {};
+var nextImmediateId = 0;
+
+// DOM APIs, for completeness
+
+exports.setTimeout = function() {
+  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+};
+exports.setInterval = function() {
+  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+};
+exports.clearTimeout =
+exports.clearInterval = function(timeout) { timeout.close(); };
+
+function Timeout(id, clearFn) {
+  this._id = id;
+  this._clearFn = clearFn;
+}
+Timeout.prototype.unref = Timeout.prototype.ref = function() {};
+Timeout.prototype.close = function() {
+  this._clearFn.call(window, this._id);
+};
+
+// Does not start the time, just sets up the members needed.
+exports.enroll = function(item, msecs) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = msecs;
+};
+
+exports.unenroll = function(item) {
+  clearTimeout(item._idleTimeoutId);
+  item._idleTimeout = -1;
+};
+
+exports._unrefActive = exports.active = function(item) {
+  clearTimeout(item._idleTimeoutId);
+
+  var msecs = item._idleTimeout;
+  if (msecs >= 0) {
+    item._idleTimeoutId = setTimeout(function onTimeout() {
+      if (item._onTimeout)
+        item._onTimeout();
+    }, msecs);
+  }
+};
+
+// That's not how node.js implements it but the exposed api is the same.
+exports.setImmediate = typeof setImmediate === "function" ? setImmediate : function(fn) {
+  var id = nextImmediateId++;
+  var args = arguments.length < 2 ? false : slice.call(arguments, 1);
+
+  immediateIds[id] = true;
+
+  nextTick(function onNextTick() {
+    if (immediateIds[id]) {
+      // fn.call() is faster so we optimize for the common use-case
+      // @see http://jsperf.com/call-apply-segu
+      if (args) {
+        fn.apply(null, args);
+      } else {
+        fn.call(null);
+      }
+      // Prevent ids from leaking
+      exports.clearImmediate(id);
+    }
+  });
+
+  return id;
+};
+
+exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+  delete immediateIds[id];
+};
+}).call(this)}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+},{"process/browser.js":10,"timers":12}]},{},[1]);
