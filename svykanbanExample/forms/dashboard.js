@@ -57,6 +57,10 @@ function onDropElement(elementId, targetColumnId, sourceColumnId, sibling) {
  * @properties={typeid:24,uuid:"B1F761D9-BF72-4BC4-AE48-226C7185FB1A"}
  */
 function onElementClick(taskId) {
+	if (taskId && taskId.includes('dummy-')) {
+		return;
+	}
+	
 	var order = getOrder(parseInt(taskId));
 	if (!order) {
 		plugins.dialogs.showErrorDialog('Error', 'Order #' + taskId + ' not found');
@@ -192,6 +196,7 @@ function loadBoard() {
 		var boardColumn = {
 			id 		: status,
 			title 	: status.toUpperCase(),
+			"class"	: 'board-' + status,
 			item 	: []
 		};
 		
@@ -261,7 +266,7 @@ function onActionAddElement(event) {
 		return;
 	}
 	
-	elements.board.addElement(board.toLowerCase(), {id: Date.now().toString(), title: 'Dummy Item at the top (not an Order)'}, 0);
+	elements.board.addElement(board.toLowerCase(), {id: 'dummy-' + Date.now().toString(), title: 'Dummy Item at the top (not an Order)', "class": ['item-danger']}, 0);
 }
 
 /**
@@ -270,7 +275,7 @@ function onActionAddElement(event) {
  * @properties={typeid:24,uuid:"1DD5FAC4-F3B6-4200-B726-1D76F54D8D46"}
  */
 function addDummyElement(boardId) {
-	elements.board.addElement(boardId, {id: Date.now().toString(), title: 'Dummy Item at the bottom (not an Order)'});
+	elements.board.addElement(boardId, {id: 'dummy-' + Date.now().toString(), title: 'Dummy Item at the bottom (not an Order)'});
 }
 
 
