@@ -1,0 +1,20 @@
+{
+  "name": "@servoy/svykanban",
+  "version": "2023.9.0",
+  "peerDependencies": {
+    "@angular/animations": "^16",
+    "@angular/common": "^16",
+    "@angular/core": "^16",
+    "@angular/forms": "^16",
+    "luxon": "*"
+  },
+  "dependencies": {
+    "tslib": "*",
+    "@servoy/jkanban": "<2"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Servoy/svykanban"
+  }
+}

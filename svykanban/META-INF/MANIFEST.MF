@@ -1,7 +1,11 @@
 Manifest-Version: 1.0
 Bundle-SymbolicName: svykanban
+NPM-PackageName: @servoy/svykanban
+NG2-CSS-ClientLibs: ~@servoy/svykanban/assets/svykanban.css
+NG2-Module: SvyKanbanModule
+Entry-Point: dist/servoy/svykanban
 Bundle-Name: kanban
-Bundle-Version: 1.0.0
+Bundle-Version: 2023.9.0
 Package-Type: Web-Component
 
 Name: board/board.spec
