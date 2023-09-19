@@ -4,6 +4,7 @@
 	"version": 1,
 	"definition": "svykanban/board/board.js",
 	"serverscript": "svykanban/board/board_server.js",
+	"doc": "svykanban/board/board_doc.js",
 	"ng2Config": {
         "dependencies": {
            "serverscript": "svykanban/board/board_server_ng2.js"
