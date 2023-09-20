@@ -120,7 +120,7 @@
 
 	"api": 
 	{
-]		"addBoards": {
+		"addBoards": {
 			"parameters": [{ 
 				"name": "boardItems",
 			    "type": "boardItem[]"}]
