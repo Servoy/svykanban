@@ -1,4 +1,6 @@
 /**
+ * @type {Array<String>}
+ *
  * @properties={typeid:35,uuid:"F69D6E60-85ED-4BDA-A4B9-EF0E4009EDF1",variableType:-4}
  */
 var ORDER_STATUS = ['pending', 'backorder', 'shipped', 'delivered'];
