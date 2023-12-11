@@ -373,10 +373,6 @@ var dragula = require('dragula');
         //board add
         self.container.appendChild(boardNode)
       }
-      if (!isInit) {
-          var parent = self.container.parentNode;
-          jQuery.cache = {};
-      }
       return self
     }
 
