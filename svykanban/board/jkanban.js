@@ -238,6 +238,12 @@ var dragula = require('dragula');
     }
 
     this.addBoards = function (boards, isInit) {
+      if (!isInit) {
+    	  var parentOfContainer = document.getElementById(self.container.parentNode.id);
+    	  if (parentOfContainer && !parentOfContainer.firstChild) {
+    	    parentOfContainer.appendChild(self.container);
+          }
+      }
       if (self.options.responsivePercentage) {
         self.container.style.width = '100%'
         self.options.gutter = '1%'
@@ -366,6 +372,10 @@ var dragula = require('dragula');
         boardNode.appendChild(footerBoard)
         //board add
         self.container.appendChild(boardNode)
+      }
+      if (!isInit) {
+          var parent = self.container.parentNode;
+          jQuery.cache = {};
       }
       return self
     }
