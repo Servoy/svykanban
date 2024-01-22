@@ -4,7 +4,7 @@
     "packageType": "Web-Component",
     "icon": "https://raw.githubusercontent.com/Servoy/svykanban/master/icon.png",
     "invertIcon": true,
-    "description": "Kanban board for NG Client, based on jkanban library",
+    "description": "Kanban board for NG & Titanium Clients, based on the jkanban library.",
     "wikiUrl": "https://github.com/Servoy/svykanban/wiki",
     "sourceUrl": "https://github.com/Servoy/svykanban",
     "releases": [
