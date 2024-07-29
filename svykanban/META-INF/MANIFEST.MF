@@ -5,7 +5,7 @@ NG2-CSS-ClientLibs: ~@servoy/svykanban/assets/svykanban.css
 NG2-Module: SvyKanbanModule
 Entry-Point: dist/servoy/svykanban
 Bundle-Name: kanban
-Bundle-Version: 2024.3.0
+Bundle-Version: 2024.3.1
 Package-Type: Web-Component
 
 Name: board/board.spec
