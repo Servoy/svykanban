@@ -10,7 +10,9 @@
 }
 	
 .kanban-board .kanban-drag {
-	max-height: 66vh;
+	width: 100%;
+	height: calc(100% - 35px);
+	max-height: 100vh;
 	overflow: auto;
 }
 
@@ -19,40 +21,11 @@
 		width: 98% !important;
 		margin-bottom: 15px;
 	}
-}
-
-@media only screen and (min-height: 550px) {
-	.kanban-board .kanban-drag {
-		max-height: 71vh;
-	}
-}
-
-@media only screen and (min-height: 650px) {
-	.kanban-board .kanban-drag {
-		max-height: 75vh;
-	}
-}
-
-@media only screen and (min-height: 750px) {
-	.kanban-board .kanban-drag {
-		max-height: 78vh;
-	}
-}
-
-@media only screen and (min-height: 850px) {
-	.kanban-board .kanban-drag {
-		max-height: 80vh;
-	}
-}
-
-@media only screen and (min-height: 900px) {
-	.kanban-board .kanban-drag {
-		max-height: 81vh;
-	}
-}
-
-@media only screen and (min-height: 950px) {
-	.kanban-board .kanban-drag {
-		max-height: 81vh;
+	
+	.kanban-container {
+	    height: unset;
+	    display: flex;
+	    flex-direction: column;
+	    gap: 20px;
 	}
 }
