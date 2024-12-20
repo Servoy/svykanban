@@ -10,6 +10,7 @@
     "releases": [
     	{"version": "1.0.0","url": "https://github.com/Servoy/svykanban/releases/download/v1.0.0/svykanban.zip","servoy-version":"2021.6"},
         {"version": "2023.9.0","url": "https://github.com/Servoy/svykanban/releases/download/v2023.9.0/svykanban.zip","servoy-version":"2023.9"},
-        {"version": "2024.3.0","url": "https://github.com/Servoy/svykanban/releases/download/v2024.3.0/svykanban.zip","servoy-version":"2024.3"}
+        {"version": "2024.3.0","url": "https://github.com/Servoy/svykanban/releases/download/v2024.3.0/svykanban.zip","servoy-version":"2024.3"},
+        {"version": "2024.3.1","url": "https://github.com/Servoy/svykanban/releases/download/v2024.3.1/svykanban.zip","servoy-version":"2024.3"}
     ]
 }
