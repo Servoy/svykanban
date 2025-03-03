@@ -1,4 +1,65 @@
 
+
+var handlers = {
+    /**
+     * callback when any board's item are clicked
+     * 
+     * @param {String} taskID
+     * @param {JSEvent} event
+     */
+    click: function() {},
+
+    /**
+     * callback when any board's item are clicked
+     * 
+     * @param {Object} el
+     * @param {Object} source
+     */
+    dragEl: function() {},
+
+    /**
+     * callback when any board's item stop drag
+     * 
+     * @param {Object} el
+     */
+    dragendEl: function() {},
+
+    /**
+     * callback when any board's item drop in a board
+     * 
+     * @param {Object} el
+     * @param {Object} target
+     * @param {Object} source
+     * @param {Object} sibling
+     */
+    dropEl: function() {},
+
+    /**
+     * callback when any board stop drag
+     * 
+     * @param {Object} el
+     * @param {Object} source
+     */
+    dragBoard: function() {},
+
+    /**
+     * callback when any board stop drag
+     * 
+     * @param {Object} el
+     */
+    dragendBoard: function() {},
+
+    /**
+     * callback when the board's button is clicked
+     * 
+     * @param {Object} el
+     * @param {String} boardId
+     * @param {JSEvent} event
+     */
+    buttonClick: function() {}
+};
+
+
 /** 
  * Adds all the boards to be displayed by the component,
  * any previous boards will be replaced by the new ones
