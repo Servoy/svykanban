@@ -105,3 +105,61 @@ function addElement(boardID, element, position) {
 function updateElement(elementID, element) {
 
 }
+
+
+var svy_types = {
+
+    boardItem: {
+
+        id : null,
+
+        title : null,
+
+        tabindex : null,
+
+        class : null,
+
+        dragTo : null,
+
+        item : null,
+
+    },
+
+    item: {
+
+        id : null,
+
+        title : null,
+
+        priority : null,
+
+        class : null,
+
+    },
+
+    itemAddOptions: {
+
+        enabled : null,
+
+        content : null,
+
+        class : null,
+
+        footer : null,
+
+    },
+
+    itemHandleOptions: {
+
+        enabled : null,
+
+        handleClass : null,
+
+        customCssHandler : null,
+
+        customCssIconHandler : null,
+
+        customHandler : null,
+
+    }
+}
