@@ -144,7 +144,14 @@
 			    { 
 				"name": "element",
 			    "type": "object"}]
-		}
+		},
+		"getElementIndex": {
+		    "returns": "int",
+            "parameters": [{
+                "name": "element",
+                "type": "object"
+            }]
+        },
 			
 	},
 	"internalApi":
