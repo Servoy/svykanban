@@ -148,7 +148,7 @@
 		"getElementIndex": {
 		    "returns": "int",
             "parameters": [{
-                "name": "element",
+                "name": "elementID",
                 "type": "string"
             }]
         },

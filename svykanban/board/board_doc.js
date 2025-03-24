@@ -42,7 +42,7 @@ var handlers = {
     /**
      * callback when any board's item drop in a board
      *
-     * @param {Object} el
+     * @param {String} el
      * @param {Object} target
      * @param {Object} source
      * @param {Object} sibling
@@ -103,6 +103,16 @@ function addElement(boardID, element, position) {
  * @param {CustomType<svykanban-board.item>} element the item to be updated, the title of the existing item will be replaced with this one, if not found by id it will be ignored
  */
 function updateElement(elementID, element) {
+
+}
+
+/**
+ * Gets the index position of an element within its parent board
+ * 
+ * @param {String} elementID the element Id
+ * @returns {number} the zero-based index of the element in its parent board, or -1 if parent or element not found
+ */
+function getElementIndex(elementID) {
 
 }
 
