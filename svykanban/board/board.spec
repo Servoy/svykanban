@@ -77,7 +77,7 @@
 			"doc": "callback when any board's item drop in a board",
 			"parameters": [{
 				"name": "el",
-				"type": "object"
+				"type": "string"
 			},{
 				"name": "target",
 				"type": "object"
@@ -149,7 +149,7 @@
 		    "returns": "int",
             "parameters": [{
                 "name": "element",
-                "type": "object"
+                "type": "string"
             }]
         },
 			
