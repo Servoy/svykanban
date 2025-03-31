@@ -1,75 +1,104 @@
+/**
+ * A Servoy Extra Component for a Kanban Board.
+ * Displays boards with items that can be dragged, dropped, and managed.
+ */
+
+/**
+ * The gutter between boards.
+ */
 var gutter;
 
+/**
+ * The width of each board.
+ */
 var widthBoard;
 
+/**
+ * If true, board widths are set as a percentage of the container.
+ */
 var responsivePercentage;
 
+/**
+ * An array of board items to be displayed.
+ */
 var boards;
 
+/**
+ * Flag indicating whether items can be dragged between boards.
+ */
 var dragItems;
 
+/**
+ * Flag indicating whether boards can be dragged.
+ */
 var dragBoards;
 
+/**
+ * Options for adding items to a board.
+ */
 var itemAddOptions;
 
+/**
+ * Options for handling item drag operations.
+ */
 var itemHandleOptions;
 
 
 var handlers = {
     /**
-     * callback when any board's item are clicked
+     * Callback when any board's item are clicked
      *
-     * @param {String} taskID
-     * @param {JSEvent} event
+     * @param {String} taskID The ID of the clicked task.
+     * @param {JSEvent} event The event object associated with the click.
      */
     click: function() {},
 
     /**
-     * callback when any board's item are clicked
+     * Callback when any board's item are clicked
      *
-     * @param {Object} el
-     * @param {Object} source
+     * @param {Object} el The DOM element of the dragged item.
+     * @param {Object} source The source board object.
      */
     dragEl: function() {},
 
     /**
-     * callback when any board's item stop drag
+     * Callback when any board's item stop drag
      *
-     * @param {Object} el
+     * @param {Object} el The DOM element of the dragged item.
      */
     dragendEl: function() {},
 
     /**
-     * callback when any board's item drop in a board
+     * Callback when any board's item drop in a board
      *
-     * @param {String} el
-     * @param {Object} target
-     * @param {Object} source
-     * @param {Object} sibling
+     * @param {String} el The identifier of the dropped item.
+     * @param {Object} target The target board object.
+     * @param {Object} source The source board object.
+     * @param {Object} sibling The sibling item element adjacent to the drop location.
      */
     dropEl: function() {},
 
     /**
-     * callback when any board stop drag
+     * Callback when any board stop drag
      *
-     * @param {Object} el
-     * @param {Object} source
+     * @param {Object} el The DOM element representing the board.
+     * @param {Object} source The source board object.
      */
     dragBoard: function() {},
 
     /**
-     * callback when any board stop drag
+     * Callback when any board stop drag
      *
-     * @param {Object} el
+     * @param {Object} el The DOM element representing the board.
      */
     dragendBoard: function() {},
 
     /**
-     * callback when the board's button is clicked
+     * Callback when the board's button is clicked
      *
-     * @param {Object} el
-     * @param {String} boardId
-     * @param {JSEvent} event
+     * @param {Object} el The DOM element of the clicked button.
+     * @param {String} boardId The identifier of the board.
+     * @param {JSEvent} event The event object associated with the click.
      */
     buttonClick: function() {}
 };
@@ -110,66 +139,112 @@ function updateElement(elementID, element) {
  * Gets the index position of an element within its parent board
  * 
  * @param {String} elementID the element Id
- * @returns {number} the zero-based index of the element in its parent board, or -1 if parent or element not found
+ * 
+ * @return {Number} the zero-based index of the element in its parent board, or -1 if parent or element not found
  */
 function getElementIndex(elementID) {
 
 }
 
 
-var svy_types = {
-
-    boardItem: {
-
-        id : null,
-
-        title : null,
-
-        tabindex : null,
-
-        class : null,
-
-        dragTo : null,
-
-        item : null,
-
-    },
-
-    item: {
-
-        id : null,
-
-        title : null,
-
-        priority : null,
-
-        class : null,
-
-    },
-
-    itemAddOptions: {
-
-        enabled : null,
-
-        content : null,
-
-        class : null,
-
-        footer : null,
-
-    },
-
-    itemHandleOptions: {
-
-        enabled : null,
-
-        handleClass : null,
-
-        customCssHandler : null,
-
-        customCssIconHandler : null,
-
-        customHandler : null,
-
-    }
+var svy_types = {  
+  /**
+   * Represents a board item.
+   */
+  boardItem: {
+    /**
+     * Unique identifier for the board.
+     */
+    id: null,
+    /**
+     * Title of the board.
+     */
+    title: null,
+    /**
+     * Tab order index for keyboard navigation.
+     */
+    tabindex: null,
+    /**
+     * CSS style class applied to the board.
+     */
+    "class": null,
+    /**
+     * Array of board IDs to which items can be dragged.
+     */
+    dragTo: null,
+    /**
+     * Array of item objects contained in the board.
+     */
+    item: null,
+  },
+  
+  /**
+   * Represents an individual item in a board.
+   */
+  item: {
+    /**
+     * Unique identifier for the item.
+     */
+    id: null,
+    /**
+     * Title of the item.
+     */
+    title: null,
+    /**
+     * Priority level of the item.
+     */
+    priority: null,
+    /**
+     * CSS style class applied to the item.
+     */
+    "class": null,
+  },
+  
+  /**
+   * Options for adding new items to a board.
+   */
+  itemAddOptions: {
+    /**
+     * Flag indicating whether adding items is enabled.
+     */
+    enabled: null,
+    /**
+     * The content to display as the add item button.
+     */
+    content: null,
+    /**
+     * CSS class for styling the add item button.
+     */
+    "class": null,
+    /**
+     * Flag indicating whether a footer is shown in the add item section.
+     */
+    footer: null,
+  },
+  
+  /**
+   * Options for item handle behavior.
+   */
+  itemHandleOptions: {
+    /**
+     * Flag indicating whether the handle is enabled.
+     */
+    enabled: null,
+    /**
+     * CSS class applied to the handle.
+     */
+    handleClass: null,
+    /**
+     * Client-side function for custom CSS styling of the handle.
+     */
+    customCssHandler: null,
+    /**
+     * Client-side function for custom CSS styling of the handle icon.
+     */
+    customCssIconHandler: null,
+    /**
+     * Client-side function for handling custom events on the handle.
+     */
+    customHandler: null,
+  }
 }
