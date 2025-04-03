@@ -156,22 +156,27 @@ var svy_types = {
      * Unique identifier for the board.
      */
     id: null,
+    
     /**
      * Title of the board.
      */
     title: null,
+
     /**
      * Tab order index for keyboard navigation.
      */
     tabindex: null,
+
     /**
      * CSS style class applied to the board.
      */
-    "class": null,
+    _class: null,
+
     /**
      * Array of board IDs to which items can be dragged.
      */
     dragTo: null,
+
     /**
      * Array of item objects contained in the board.
      */
@@ -186,18 +191,21 @@ var svy_types = {
      * Unique identifier for the item.
      */
     id: null,
+
     /**
      * Title of the item.
      */
     title: null,
+
     /**
      * Priority level of the item.
      */
     priority: null,
+
     /**
      * CSS style class applied to the item.
      */
-    "class": null,
+    _class: null,
   },
   
   /**
@@ -208,14 +216,17 @@ var svy_types = {
      * Flag indicating whether adding items is enabled.
      */
     enabled: null,
+
     /**
      * The content to display as the add item button.
      */
     content: null,
+
     /**
      * CSS class for styling the add item button.
      */
-    "class": null,
+    _class: null,
+
     /**
      * Flag indicating whether a footer is shown in the add item section.
      */
@@ -230,18 +241,22 @@ var svy_types = {
      * Flag indicating whether the handle is enabled.
      */
     enabled: null,
+
     /**
      * CSS class applied to the handle.
      */
     handleClass: null,
+
     /**
      * Client-side function for custom CSS styling of the handle.
      */
     customCssHandler: null,
+
     /**
      * Client-side function for custom CSS styling of the handle icon.
      */
     customCssIconHandler: null,
+    
     /**
      * Client-side function for handling custom events on the handle.
      */
