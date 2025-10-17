@@ -1,6 +1,6 @@
-/**
- * A Servoy Extra Component for a Kanban Board.
- * Displays boards with items that can be dragged, dropped, and managed.
+/*
+ * A Kanban Board.<br/>
+ * It displays boards with items that can be dragged, dropped, and managed.
  */
 
 /**
