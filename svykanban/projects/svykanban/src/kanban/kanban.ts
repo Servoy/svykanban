@@ -51,7 +51,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
             },
             dropEl: (el, target, source, sibling) => {
                 if (this.dropEl) {
-                    this.dropEl(el.getAttribute("data-eid"), target.offsetParent.getAttribute("data-id"), source.offsetParent.getAttribute("data-id"), null);
+                    this.dropEl(el.getAttribute("data-eid"), target.offsetParent.getAttribute("data-id"), source.offsetParent.getAttribute("data-id"), sibling ? sibling.getAttribute("data-eid") : null);
                 }
             }
         });
