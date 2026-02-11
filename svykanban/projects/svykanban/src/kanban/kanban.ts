@@ -24,6 +24,12 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
 
     jkanban: jKanban;
 
+    // Autoscroll properties
+    private autoScrollRunning = false;
+    private autoScrollRafId: number | null = null;
+    private readonly SCROLL_ZONE = 50; // pixels from edge to trigger scroll
+    private readonly MAX_SCROLL_SPEED = 10; // max pixels per frame
+
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef) {
         super(renderer, cdRef);
     }
@@ -34,7 +40,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
             element: '#kboard_' + this.servoyApi.getMarkupId(),
             responsivePercentage: this.responsivePercentage,
             gutter: this.gutter,
-            widthBoard: this.widthBoard,
+            widthBoard: this.addPxIfNumber(this.widthBoard),
             dragItems: this.dragItems,
             dragBoards: this.dragBoards,
             itemAddOptions: this.itemAddOptions || {},
@@ -55,6 +61,99 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
                 }
             }
         });
+
+        // Initialize autoscroll for drag items
+        this.initAutoscroll();
+    }
+
+    private initAutoscroll(): void {
+        if (!this.jkanban || !this.jkanban.drake) {
+            console.warn('Drake not available for autoscroll. Window might be too narrow or dragItems disabled.');
+            return;
+        }
+
+        this.jkanban.drake.on('drag', () => this.startAutoScroll());
+        this.jkanban.drake.on('drop', () => this.stopAutoScroll());
+        this.jkanban.drake.on('cancel', () => this.stopAutoScroll());
+        this.jkanban.drake.on('dragend', () => this.stopAutoScroll());
+    }
+
+    private startAutoScroll(): void {
+        if (this.autoScrollRunning) return;
+
+        this.autoScrollRunning = true;
+
+        const loop = () => {
+            if (!this.autoScrollRunning) return;
+
+            this.updateAutoScroll();
+            this.autoScrollRafId = requestAnimationFrame(loop);
+        };
+
+        this.autoScrollRafId = requestAnimationFrame(loop);
+    }
+
+    private stopAutoScroll(): void {
+        this.autoScrollRunning = false;
+
+        if (this.autoScrollRafId !== null) {
+            cancelAnimationFrame(this.autoScrollRafId);
+            this.autoScrollRafId = null;
+        }
+    }
+
+
+    private updateAutoScroll(): void {
+        const mirror = document.querySelector('.gu-mirror');
+        if (!mirror) return;
+
+        const mirrorRect = mirror.getBoundingClientRect();
+
+        // Scroll the main kanban container horizontally
+        const kanbanContainer = document.querySelector('.kanban-container') as HTMLElement;
+        if (kanbanContainer) {
+            const containerRect = kanbanContainer.getBoundingClientRect();
+
+            // Check if mirror is over the kanban container
+            if (mirrorRect.top < containerRect.bottom && mirrorRect.bottom > containerRect.top) {
+                // Horizontal scroll - left edge (tight scroll)
+                if (mirrorRect.left < containerRect.left + this.SCROLL_ZONE && kanbanContainer.scrollLeft > 0) {
+                    const proximity = Math.max(0, 1 - ((mirrorRect.left - containerRect.left) / this.SCROLL_ZONE));
+                    const scrollAmount = this.MAX_SCROLL_SPEED * proximity;
+                    kanbanContainer.scrollLeft -= scrollAmount;
+                }
+                // Horizontal scroll - right edge
+                else if (mirrorRect.right > containerRect.right - this.SCROLL_ZONE) {
+                    const proximity = Math.max(0, 1 - ((containerRect.right - mirrorRect.right) / this.SCROLL_ZONE));
+                    const scrollAmount = this.MAX_SCROLL_SPEED * proximity;
+                    kanbanContainer.scrollLeft += scrollAmount;
+                }
+            }
+        }
+
+        // Scroll individual board columns (vertical scroll within a board)
+        const boards = document.querySelectorAll('.kanban-board');
+        boards.forEach((board: Element) => {
+            const boardElement = board as HTMLElement;
+            const dragArea = boardElement.querySelector('.kanban-drag') as HTMLElement;
+            if (!dragArea) return;
+
+            const dragRect = dragArea.getBoundingClientRect();
+
+            // Check if mirror is over this board
+            if (mirrorRect.left < dragRect.right && mirrorRect.right > dragRect.left) {
+                // Vertical scroll within board
+                if (mirrorRect.bottom > dragRect.bottom - this.SCROLL_ZONE) {
+                    const proximity = Math.max(0, 1 - ((dragRect.bottom - mirrorRect.bottom) / this.SCROLL_ZONE));
+                    const scrollAmount = this.MAX_SCROLL_SPEED * proximity;
+                    dragArea.scrollTop += scrollAmount;
+                } else if (mirrorRect.top < dragRect.top + this.SCROLL_ZONE && dragArea.scrollTop > 0) {
+                    const proximity = Math.max(0, 1 - ((mirrorRect.top - dragRect.top) / this.SCROLL_ZONE));
+                    const scrollAmount = this.MAX_SCROLL_SPEED * proximity;
+                    dragArea.scrollTop -= scrollAmount;
+                }
+            }
+        });
     }
 
     svyOnChanges(changes: SimpleChanges) {
@@ -70,7 +169,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
 
                             });
                         }
-                        if (this.jkanban && this.boards){    
+                        if (this.jkanban && this.boards) {
                             this.jkanban.addBoards(this.boards);
                         }
                         break;
@@ -78,7 +177,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
             }
         }
     }
-    
+
     public addElement(bid, el, position): void {
         if (position === null) {
             position = -1;
@@ -97,6 +196,11 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
         const boardsElements = this.jkanban.getBoardElements(boardID);
         if (!boardsElements?.length) return -1;
         return [...boardsElements].map(item => item.getAttribute("data-eid")).indexOf(element);
+    }
+
+    addPxIfNumber(value: string): string {
+        const v = value.trim();
+        return /^\d+$/.test(v) ? v + "px" : value;
     }
 }
 

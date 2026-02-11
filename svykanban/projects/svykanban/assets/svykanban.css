@@ -2,16 +2,18 @@
 
 .kanban-container {
 	height: 100%;
-	overflow: hidden;
+	overflow: auto;
+    display: flex;
 }
 
 .kanban-board {
 	height: 100%;
+    flex-shrink: 0;
 }
 	
 .kanban-board .kanban-drag {
 	width: 100%;
-	height: calc(100% - 35px);
+	height: calc(100% - 65px);
 	max-height: 100vh;
 	overflow: auto;
 }
