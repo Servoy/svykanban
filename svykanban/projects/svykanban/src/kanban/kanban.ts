@@ -199,6 +199,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     addPxIfNumber(value: string): string {
+        if (!value) return value;
         const v = value.trim();
         return /^\d+$/.test(v) ? v + "px" : value;
     }
