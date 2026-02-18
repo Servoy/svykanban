@@ -151,7 +151,7 @@
                 "name": "elementID",
                 "type": "string"
             }]
-        },
+        }
 			
 	},
 	"internalApi":
