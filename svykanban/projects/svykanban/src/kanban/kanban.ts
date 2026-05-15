@@ -19,8 +19,8 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
     @Input() itemHandleOptions: ItemHandlerOptions;
 
     @Input() dropEl: (el: any, target: any, source: any, sibbling: any) => void;
-    @Input() click: (taskID: string, event) => void;
-    @Input() buttonClick: (taskID: string, boardID: string, event) => void;
+    @Input() click: (taskID: string, event: any, dataTarget: string | null) => void;
+    @Input() buttonClick: (taskID: string, boardID: string, event: any, dataTarget: string | null) => void;
 
     jkanban: jKanban;
 
@@ -47,12 +47,14 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
             itemHandleOptions: this.itemHandleOptions || {},
             buttonClick: (el, boardId, event) => {
                 if (this.buttonClick) {
-                    this.buttonClick(el.getAttribute("data-eid"), boardId, event)
+                    const dataTarget = event?.target ? (event.target as HTMLElement).closest('[data-target]') : null;
+                    this.buttonClick(el.getAttribute("data-eid"), boardId, event, dataTarget ? dataTarget.getAttribute('data-target') : null);
                 }
             },
             click: (el, e) => {
                 if (this.click) {
-                    this.click(el.getAttribute("data-eid"), e);
+                    const dataTarget = e?.target ? (e.target as HTMLElement).closest('[data-target]') : null;
+                    this.click(el.getAttribute("data-eid"), e, dataTarget ? dataTarget.getAttribute('data-target') : null);
                 }
             },
             dropEl: (el, target, source, sibling) => {

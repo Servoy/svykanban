@@ -54,7 +54,8 @@
 				"name": "taskID",
 				"type": "string"
 			},
-			{ "name" : "event", "type" : "JSEvent" }]
+			{ "name" : "event", "type" : "JSEvent" },
+			{ "name" : "dataTarget", "type" : "string" }]
 		},	
 		"dragEl": {
 			"doc": "callback when any board's item are clicked",
@@ -114,7 +115,9 @@
 			},{
 				"name": "boardId",
 				"type": "string"
-			}, { "name" : "event", "type" : "JSEvent" }]
+			},
+			{ "name" : "event", "type" : "JSEvent" },
+			{ "name" : "dataTarget", "type" : "string" }]
 		}
 	},
 

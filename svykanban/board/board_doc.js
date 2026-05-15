@@ -50,6 +50,7 @@ var handlers = {
      *
      * @param {String} taskID The ID of the clicked task.
      * @param {JSEvent} event The event object associated with the click.
+     * @param {String} dataTarget The value of the closest data-target attribute from the clicked element, or null if none found.
      */
     click: function() {},
 
@@ -99,6 +100,7 @@ var handlers = {
      * @param {Object} el The DOM element of the clicked button.
      * @param {String} boardId The identifier of the board.
      * @param {JSEvent} event The event object associated with the click.
+     * @param {String} dataTarget The value of the closest data-target attribute from the clicked element, or null if none found.
      */
     buttonClick: function() {}
 };
