@@ -1,18 +1,13 @@
 
 import { NgModule } from '@angular/core';
-import {SvyKanban} from './kanban/kanban';
-import { CommonModule } from '@angular/common';
- 
+import { SvyKanban } from './kanban/kanban';
+
 @NgModule({
-    declarations: [
-        SvyKanban
-    ],
-    providers: [],
     imports: [
-        CommonModule 
-    ],
-    exports: [ 
         SvyKanban
-      ]
+    ],
+    exports: [
+        SvyKanban
+    ]
 })
 export class SvyKanbanModule {}

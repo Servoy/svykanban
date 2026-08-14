@@ -1,7 +1,9 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "paths": {},
+    "paths": {
+      "@servoy/jkanban": ["types/servoy__jkanban"]
+    },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "esModuleInterop": true,
@@ -15,7 +17,8 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "es2020",
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "ignoreDeprecations": "6.0"
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

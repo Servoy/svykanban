@@ -3,6 +3,7 @@ Bundle-SymbolicName: svykanban
 NPM-PackageName: @servoy/svykanban
 NG2-CSS-ClientLibs: ~@servoy/svykanban/assets/svykanban.css
 NG2-Module: SvyKanbanModule
+NG2-Components: SvyKanban
 Entry-Point: dist/servoy/svykanban
 Bundle-Name: kanban
 Bundle-Version: 2025.3.1

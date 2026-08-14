@@ -1,4 +1,5 @@
 import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ICustomObjectValue, ServoyBaseComponent } from '@servoy/public';
 import jKanban from "@servoy/jkanban";
 
@@ -6,24 +7,25 @@ import jKanban from "@servoy/jkanban";
     selector: 'svykanban-board',
     templateUrl: './kanban.html',
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    standalone: true,
+    imports: [CommonModule]
 })
 export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
 
-    @Input() gutter: string;
-    @Input() widthBoard: string;
-    @Input() responsivePercentage: boolean;
-    @Input() dragItems: boolean;
-    @Input() dragBoards: boolean;
-    @Input() boards: BoardItem[];
-    @Input() itemAddOptions: ItemAddOptions;
-    @Input() itemHandleOptions: ItemHandlerOptions;
+    @Input() gutter!: string;
+    @Input() widthBoard!: string;
+    @Input() responsivePercentage!: boolean;
+    @Input() dragItems!: boolean;
+    @Input() dragBoards!: boolean;
+    @Input() boards!: BoardItem[];
+    @Input() itemAddOptions!: ItemAddOptions;
+    @Input() itemHandleOptions!: ItemHandlerOptions;
 
-    @Input() dropEl: (el: any, target: any, source: any, sibbling: any) => void;
-    @Input() click: (taskID: string, event: any, dataTarget: string | null) => void;
-    @Input() buttonClick: (taskID: string, boardID: string, event: any, dataTarget: string | null) => void;
+    @Input() dropEl!: (el: any, target: any, source: any, sibbling: any) => void;
+    @Input() click!: (taskID: string, event: any, dataTarget: string | null) => void;
+    @Input() buttonClick!: (taskID: string, boardID: string, event: any, dataTarget: string | null) => void;
 
-    jkanban: jKanban;
+    jkanban!: jKanban;
 
     // Autoscroll properties
     private autoScrollRunning = false;
@@ -38,7 +40,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
     svyOnInit() {
         super.svyOnInit();
         this.jkanban = new jKanban({
-            element: '#kboard_' + this.servoyApi.getMarkupId(),
+            element: '#kboard_' + this.servoyApi().getMarkupId(),
             responsivePercentage: this.responsivePercentage,
             gutter: this.gutter,
             widthBoard: this.addPxIfNumber(this.widthBoard),
@@ -46,19 +48,19 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
             dragBoards: this.dragBoards,
             itemAddOptions: this.itemAddOptions || {},
             itemHandleOptions: this.itemHandleOptions || {},
-            buttonClick: (el, boardId, event) => {
+            buttonClick: (el: any, boardId: any, event: any) => {
                 if (this.buttonClick) {
                     const dataTarget = event?.target ? (event.target as HTMLElement).closest('[data-target]') : null;
                     this.buttonClick(el.getAttribute("data-eid"), boardId, event, dataTarget ? dataTarget.getAttribute('data-target') : null);
                 }
             },
-            click: (el, e) => {
+            click: (el: any, e: any) => {
                 if (this.click) {
                     const dataTarget = e?.target ? (e.target as HTMLElement).closest('[data-target]') : null;
                     this.click(el.getAttribute("data-eid"), e, dataTarget ? dataTarget.getAttribute('data-target') : null);
                 }
             },
-            dropEl: (el, target, source, sibling) => {
+            dropEl: (el: any, target: any, source: any, sibling: any) => {
                 if (this.dropEl) {
                     this.dropEl(el.getAttribute("data-eid"), target.offsetParent.getAttribute("data-id"), source.offsetParent.getAttribute("data-id"), sibling ? sibling.getAttribute("data-eid") : null);
                 }
@@ -167,7 +169,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
                 switch (property) {
                     case 'boards':
                         if (this.jkanban && change.previousValue) {
-                            change.previousValue.forEach((board) => {
+                            change.previousValue.forEach((board: any) => {
                                 this.jkanban.removeBoard(board.id)
 
                             });
@@ -181,14 +183,14 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
         }
     }
 
-    public addElement(bid, el, position): void {
+    public addElement(bid: any, el: any, position: any): void {
         if (position === null) {
             position = -1;
         }
         this.jkanban.addElement(bid, el, position);
     }
 
-    public updateElement(bid, el): void {
+    public updateElement(bid: any, el: any): void {
         const t = this.jkanban.findElement(el.id);
         t.innerHTML = el.title;
     }
@@ -209,32 +211,32 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
 }
 
 export class Item implements ICustomObjectValue {
-    public id: string;
-    public title: string;
-    public priority: string;
-    public class: string;
+    public id!: string;
+    public title!: string;
+    public priority!: string;
+    public class!: string;
 }
 
 export class BoardItem implements ICustomObjectValue {
-    public id: string;
-    public title: string;
-    public tabindex: string;
-    public class: string;
-    public dragTo: string[];
-    public item: Item[];
+    public id!: string;
+    public title!: string;
+    public tabindex!: string;
+    public class!: string;
+    public dragTo!: string[];
+    public item!: Item[];
 }
 
 export class ItemAddOptions implements ICustomObjectValue {
-    public enabled: boolean;
-    public content: string;
-    public footer: boolean;
-    public class: string;
+    public enabled!: boolean;
+    public content!: string;
+    public footer!: boolean;
+    public class!: string;
 }
 
 export class ItemHandlerOptions implements ICustomObjectValue {
-    public enabled: boolean;
-    public handleClass: string;
-    public customCssHandler: boolean;
-    public customCssIconHandler: string;
-    public customHandler: string;
+    public enabled!: boolean;
+    public handleClass!: string;
+    public customCssHandler!: boolean;
+    public customCssIconHandler!: string;
+    public customHandler!: string;
 }

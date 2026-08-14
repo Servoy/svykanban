@@ -4,9 +4,12 @@
     "outDir": "../../out-tsc/lib",
     "declaration": true,
     "declarationMap": true,
-    "inlineSources": true,
-    "types": []
+    "inlineSources": true
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
   "angularCompilerOptions": {
     "skipTemplateCodegen": true,
     "extendedDiagnostics": {
