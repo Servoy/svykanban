@@ -24,15 +24,7 @@
             }
           }
         },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "preserveSymlinks": true,
-            "main": "projects/svykanban/src/test.ts",
-            "tsConfig": "projects/svykanban/tsconfig.spec.json",
-            "karmaConfig": "projects/svykanban/karma.conf.js"
-          }
-        },
+
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {

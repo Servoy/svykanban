@@ -7,10 +7,8 @@
     "build": "ng build --configuration production",
     "build_debug": "ng build --watch",
     "make_release": "ng build --configuration production && node scripts/build.js",
-    "test": "ng test --watch --browsers Chrome",
-    "test_edge": "ng test --watch --browsers Edge",
-    "test_edge_nowatch": "ng test --watch=false --browsers Edge",
-    "test_headless": "ng test --browsers headlessChrome --watch=false",
+    "test": "vitest run",
+    "test_watch": "vitest",
     "lint": "ng lint"
   },
   "private": true,
@@ -27,6 +25,7 @@
     "zone.js": "0.16.2"
   },
   "devDependencies": {
+    "@analogjs/vite-plugin-angular": "^2.7.0",
     "@angular-eslint/builder": "22.1.0",
     "@angular/build": "^22.1.4",
     "@angular/cli": "22.1.4",
@@ -34,23 +33,13 @@
     "@angular/platform-browser": "22.1.2",
     "@angular/platform-browser-dynamic": "22.1.2",
     "@eslint/js": "^10.0.1",
-    "@types/jasmine": "6.0.0",
     "adm-zip": "0.6.0",
     "angular-eslint": "^22.1.0",
     "eslint": "^10.8.1",
-    "istanbul-lib-instrument": "^6.0.3",
-    "jasmine": "6.3.0",
-    "jasmine-core": "6.3.0",
-    "jasmine-spec-reporter": "7.0.0",
-    "karma": "6.4.4",
-    "karma-chrome-launcher": "3.2.0",
-    "karma-cli": "2.0.0",
-    "karma-coverage": "2.2.1",
-    "karma-jasmine": "5.1.0",
-    "karma-jasmine-html-reporter": "2.2.0",
-    "karma-junit-reporter": "2.0.1",
+    "jsdom": "^30.0.1",
     "ng-packagr": "22.1.1",
     "typescript": "6.0.3",
-    "typescript-eslint": "^8.67.0"
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.10"
   }
 }
