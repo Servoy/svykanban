@@ -192,7 +192,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
 
     public updateElement(bid: any, el: any): void {
         const t = this.jkanban.findElement(el.id);
-        t.innerHTML = el.title;
+        if (t) t.innerHTML = el.title;
     }
 
     public getElementIndex(element: string): number {
@@ -200,7 +200,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
         if (!boardID) return -1;
         const boardsElements = this.jkanban.getBoardElements(boardID);
         if (!boardsElements?.length) return -1;
-        return [...boardsElements].map(item => item.getAttribute("data-eid")).indexOf(element);
+        return [...boardsElements].map(item => (item as HTMLElement).getAttribute("data-eid")).indexOf(element);
     }
 
     addPxIfNumber(value: string): string {

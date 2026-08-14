@@ -1,9 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "paths": {
-      "@servoy/jkanban": ["types/servoy__jkanban"]
-    },
+    "paths": {},
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "esModuleInterop": true,
