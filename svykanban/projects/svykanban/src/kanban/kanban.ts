@@ -15,7 +15,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
     @Input() responsivePercentage: boolean;
     @Input() dragItems: boolean;
     @Input() dragBoards: boolean;
-    @Input() boards: Array<BoardItem>;
+    @Input() boards: BoardItem[];
     @Input() itemAddOptions: ItemAddOptions;
     @Input() itemHandleOptions: ItemHandlerOptions;
 
@@ -189,7 +189,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     public updateElement(bid, el): void {
-        var t = this.jkanban.findElement(el.id);
+        const t = this.jkanban.findElement(el.id);
         t.innerHTML = el.title;
     }
 
@@ -220,8 +220,8 @@ export class BoardItem implements ICustomObjectValue {
     public title: string;
     public tabindex: string;
     public class: string;
-    public dragTo: Array<string>;
-    public item: Array<Item>;
+    public dragTo: string[];
+    public item: Item[];
 }
 
 export class ItemAddOptions implements ICustomObjectValue {

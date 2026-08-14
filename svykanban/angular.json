@@ -36,7 +36,6 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "preserveSymlinks": true,
             "lintFilePatterns": [
               "projects/svykanban/src/**/*.ts",
               "projects/svykanban/src/**/*.html"
