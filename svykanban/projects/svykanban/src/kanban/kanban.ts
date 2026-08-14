@@ -1,10 +1,11 @@
-import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef } from '@angular/core';
+import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { ICustomObjectValue, ServoyBaseComponent } from '@servoy/public';
 import jKanban from "@servoy/jkanban";
 
 @Component({
     selector: 'svykanban-board',
     templateUrl: './kanban.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
