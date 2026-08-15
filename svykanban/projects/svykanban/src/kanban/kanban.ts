@@ -1,3 +1,4 @@
+import './global-polyfill';
 import { Component, SimpleChanges, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ICustomObjectValue, ServoyBaseComponent } from '@servoy/public';
@@ -24,6 +25,10 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
     readonly dropEl = input<(el: any, target: any, source: any, sibbling: any) => void>();
     readonly click = input<(taskID: string, event: any, dataTarget: string | null) => void>();
     readonly buttonClick = input<(taskID: string, boardID: string, event: any, dataTarget: string | null) => void>();
+    readonly dragEl = input<(el: any, source: any) => void>();
+    readonly dragendEl = input<(el: any) => void>();
+    readonly dragBoard = input<(el: any, source: any) => void>();
+    readonly dragendBoard = input<(el: any) => void>();
 
     jkanban!: jKanban;
 
@@ -74,10 +79,19 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
             return;
         }
 
-        this.jkanban.drake.on('drag', () => this.startAutoScroll());
+        this.jkanban.drake.on('drag', (el: any, source: any) => {
+            this.startAutoScroll();
+            const handler = source?.classList.contains('kanban-container') ? this.dragBoard() : this.dragEl();
+            if (handler) handler(el, source);
+        });
         this.jkanban.drake.on('drop', () => this.stopAutoScroll());
         this.jkanban.drake.on('cancel', () => this.stopAutoScroll());
-        this.jkanban.drake.on('dragend', () => this.stopAutoScroll());
+        this.jkanban.drake.on('dragend', (el: any) => {
+            this.stopAutoScroll();
+            const isBoardDrag = el?.classList.contains('kanban-board');
+            const handler = isBoardDrag ? this.dragendBoard() : this.dragendEl();
+            if (handler) handler(el);
+        });
     }
 
     private startAutoScroll(): void {
