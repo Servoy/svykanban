@@ -30,7 +30,6 @@ class MockDrake extends EventEmitter {
 describe('SvyKanban', () => {
     let component: SvyKanban;
     let fixture: ComponentFixture<SvyKanban>;
-    let mockDrake: MockDrake;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -62,6 +61,14 @@ describe('SvyKanban', () => {
         expect(component.dropEl()).toBeTruthy();
         expect(component.click()).toBeTruthy();
         expect(component.buttonClick()).toBeTruthy();
+    });
+
+    it('should set native element id and initialize jKanban on svyOnInit', () => {
+        fixture.detectChanges();
+
+        const nativeEl = fixture.nativeElement.querySelector('#kboard_test-id');
+        expect(nativeEl).toBeTruthy();
+        expect(component.jkanban).toBeTruthy();
     });
 });
 

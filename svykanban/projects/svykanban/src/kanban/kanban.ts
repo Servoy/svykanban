@@ -39,6 +39,7 @@ export class SvyKanban extends ServoyBaseComponent<HTMLDivElement> {
 
     svyOnInit() {
         super.svyOnInit();
+        this.getNativeElement().id = 'kboard_' + this.servoyApi().getMarkupId();
         this.jkanban = new jKanban({
             element: '#kboard_' + this.servoyApi().getMarkupId(),
             responsivePercentage: this.responsivePercentage(),
