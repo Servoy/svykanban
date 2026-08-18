@@ -36,7 +36,7 @@
 
 	"model": 
 	{
-		"designsize" : {"type" :"dimension", "tags": {"serveronly": true}, "default" : {"width":400, "height":300}},
+		"designsize" : {"type" :"dimension", "tags": {"serveronly": true, "scope": "private"}, "default" : {"width":400, "height":300}},
 		"gutter"     		   : {"type": "string"},
 		"widthBoard" 		   : {"type": "string"},
 		"responsivePercentage" : {"type": "boolean","default": false},
