@@ -1,13 +1,6 @@
 {
   "name": "@servoy/svykanban",
   "version": "2025.3.1",
-  "peerDependencies": {
-    "@angular/animations": "^19",
-    "@angular/common": "^19",
-    "@angular/core": "^19",
-    "@angular/forms": "^19",
-    "luxon": "*"
-  },
   "dependencies": {
     "tslib": "*",
     "@servoy/jkanban": "<2"
