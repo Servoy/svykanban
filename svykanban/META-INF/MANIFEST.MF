@@ -6,7 +6,7 @@ NG2-Module: SvyKanbanModule
 NG2-Components: SvyKanban
 Entry-Point: dist/servoy/svykanban
 Bundle-Name: kanban
-Bundle-Version: 2026.9.0
+Bundle-Version: 2026.9.1
 Package-Type: Web-Component
 
 Name: board/board.spec
