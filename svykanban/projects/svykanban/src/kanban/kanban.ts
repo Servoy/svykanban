@@ -1,4 +1,3 @@
-import './global-polyfill';
 import { Component, SimpleChanges, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ICustomObjectValue, ServoyBaseComponent } from '@servoy/public';
