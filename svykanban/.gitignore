@@ -1,4 +1,6 @@
 /dist/
 /node_modules/
 /.angular/
+/coverage/
+/coverage-report.md
 /svykanban.zip
