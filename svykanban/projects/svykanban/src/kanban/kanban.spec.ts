@@ -24,7 +24,7 @@ function createMockServoyApi(): ServoyApi {
 }
 
 class MockDrake extends EventEmitter {
-    destroy() {}
+    destroy() { /* no-op */ }
 }
 
 describe('SvyKanban', () => {
